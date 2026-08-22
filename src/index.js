@@ -19,23 +19,21 @@ async function fetchDeals() {
     const imageMatch = xml.match(/<media:content[^>]*url="([^"]*)"/);
     const image = imageMatch?.[1] || "";
 
-    // Include any deal mentioning Amazon
     const textToCheck = (title + " " + link).toLowerCase();
     if (!textToCheck.includes("amazon")) continue;
 
-    // Extract product keywords from title for Amazon search
     const productName = title
       .replace(/\[.*?\]/g, "")
       .replace(/\(.*?\)/g, "")
-      .replace(/für\s+\d+[.,]?\d*\s*€?/i, "")
-      .replace(/statt\s+\d+[.,]?\d*\s*€?/i, "")
-      .replace(/ab\s+\d+[.,]?\d*\s*€?/i, "")
-      .replace(/~\s*\d+[.,]?\d*\s*€?/i, "")
+      .replace(/f.r\s+\d+[.,]?\d*\s*\u20ac?/i, "")
+      .replace(/statt\s+\d+[.,]?\d*\s*\u20ac?/i, "")
+      .replace(/ab\s+\d+[.,]?\d*\s*\u20ac?/i, "")
+      .replace(/~\s*\d+[.,]?\d*\s*\u20ac?/i, "")
       .replace(/von\s+Amazon/gi, "")
       .replace(/bei\s+Amazon/gi, "")
       .replace(/Amazon\s*/gi, "")
       .replace(/Prime/gi, "")
-      .replace(/\d+[.,]\d+\s*€/g, "")
+      .replace(/\d+[.,]\d+\s*\u20ac/g, "")
       .replace(/\s+/g, " ")
       .trim()
       .split(" ")
@@ -51,17 +49,17 @@ async function fetchDeals() {
   return items.slice(0, 8);
 }
 
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 function formatWhatsAppMessage(deal) {
-  return `🔥 *Deal Alert!*
-
-${deal.title}
-
-${deal.price ? `💰 Preis: ${deal.price}\n` : ""}
-🔗 ${deal.affiliateLink}
-
-📉 Sichere dir das Angebot!
-
-_Mit DealZTime verpasst du kein Schnaeppchen._`;
+  let msg = `\uD83D\uDD25 *Deal Alert!*\n\n${deal.title}`;
+  if (deal.price) msg += `\n\n\uD83D\uDCB0 Preis: ${deal.price}`;
+  msg += `\n\n\uD83D\uDD17 ${deal.affiliateLink}`;
+  msg += `\n\n\uD83D\uDCC9 Sichere dir das Angebot!`;
+  msg += `\n\n_Mit DealZTime verpasst du kein Schnaeppchen._`;
+  return msg;
 }
 
 import express from "express";
@@ -73,24 +71,76 @@ app.get("/", async (req, res) => {
   try {
     const deals = await fetchDeals();
 
+    const dealCards = deals.map((d, i) => {
+      const msg = formatWhatsAppMessage(d);
+      const escapedMsg = escapeHtml(msg);
+      const b64 = Buffer.from(msg, "utf-8").toString("base64");
+
+      return `
+      <div class="deal">
+        ${d.image ? `<img src="${d.image}" alt="" onerror="this.style.display='none'">` : ""}
+        <h3 style="color:#25D366;margin-top:0">Deal ${i + 1}</h3>
+        ${d.price ? `<div class="price">${escapeHtml(d.price)}</div>` : ""}
+        <p style="color:#ddd">${escapeHtml(d.title)}</p>
+        <div class="btns">
+          <a href="${escapeHtml(d.affiliateLink)}" target="_blank" class="btn btn-amz">Amazon ansehen</a>
+          <button class="btn btn-copy" onclick="copyMsg('${b64}', this)">Kopieren & Einfuegen</button>
+        </div>
+      </div>`;
+    }).join("");
+
     const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>DealZTime Bot</title>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DealZTime</title>
 <style>
-body{font-family:system-ui,sans-serif;max-width:700px;margin:40px auto;padding:20px;background:#0a0a0a;color:#eee}
-h1{font-size:28px;margin-bottom:5px}
-.sub{color:#888;margin-top:0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;max-width:700px;margin:0 auto;padding:20px;background:#0a0a0a;color:#eee;min-height:100vh}
+h1{font-size:26px;margin-bottom:2px}
+.sub{color:#888;margin-bottom:20px;font-size:14px}
 .deal{background:#1a1a1a;border-radius:12px;padding:20px;margin:15px 0;border:1px solid #2a2a2a;overflow:hidden}
-.deal img{float:right;max-width:120px;border-radius:8px;margin-left:15px}
+.deal img{float:right;max-width:100px;border-radius:8px;margin-left:15px;margin-bottom:10px}
 a{color:#25D366;text-decoration:none}
 a:hover{text-decoration:underline}
 .price{color:#ff6b35;font-weight:bold;font-size:18px;margin:8px 0}
-.msg{background:#0d3320;border:1px solid #25D366;border-radius:8px;padding:15px;margin-top:10px;font-family:monospace;font-size:12px;white-space:pre-wrap;color:#ccc;display:none}
-.show-msg{cursor:pointer;color:#888;font-size:13px;margin-top:8px}
+.btns{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.btn{display:inline-block;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;text-decoration:none}
+.btn-amz{background:#25D366;color:#000}
+.btn-amz:hover{opacity:.85;text-decoration:none}
+.btn-copy{background:#333;color:#fff;border:1px solid #555}
+.btn-copy:hover{background:#444}
+.btn-copy.copied{background:#25D366;color:#000;border-color:#25D366}
+.info{background:#111;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2a2a2a}
+.info h2{color:#25D366;font-size:16px;margin-bottom:8px}
+.info p{color:#888;font-size:13px;line-height:1.6}
+.footer{color:#444;margin-top:30px;font-size:12px;text-align:center}
 </style></head><body>
-<h1>DealZTime Bot</h1>
-<p class="sub">Heute ${new Date().toLocaleDateString("de-DE")}: <strong>${deals.length} Amazon-Deals</strong></p>
-${deals.map((d, i) => `<div class="deal">${d.image ? `<img src="${d.image}" alt="" onerror="this.style.display='none'">` : ""}<h3 style="color:#25D366;margin-top:0">Deal ${i + 1}</h3>${d.price ? `<div class="price">${d.price}</div>` : ""}<p>${d.title}</p><a href="${d.affiliateLink}" target="_blank">Bei Amazon ansehen →</a><div class="show-msg" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">📋 WhatsApp-Nachricht anzeigen</div><div class="msg">${formatWhatsAppMessage(d).replace(/</g, "&lt;")}</div></div>`).join("")}
-<p style="color:#555;margin-top:30px;font-size:13px">Bot laeuft automatisch. Deals werden direkt von Amazon geholt.</p>
+<h1>\uD83D\uDD25 DealZTime</h1>
+<p class="sub">${new Date().toLocaleDateString("de-DE", {weekday:"long",day:"numeric",month:"long",year:"numeric"})} &middot; ${deals.length} Deals</p>
+
+<div class="info">
+<h2>\uD83D\uDCCB So funktioniert's:</h2>
+<p>1. Klick <strong>"Kopieren & Einfuegen"</strong><br>
+2. Oeffne deinen WhatsApp Channel<br>
+3. Nachricht einfuegen + senden<br>
+4. Fertig! Dein Affiliate-Link ist drin.</p>
+</div>
+
+${dealCards}
+
+<p class="footer">DealZTime &middot; Deals von mydealz.de mit Amazon Affiliate-Links</p>
+
+<script>
+function copyMsg(b64, btn) {
+  const msg = decodeURIComponent(escape(atob(b64)));
+  navigator.clipboard.writeText(msg).then(() => {
+    btn.textContent = "Kopiert!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = "Kopieren & Einfuegen";
+      btn.classList.remove("copied");
+    }, 2000);
+  });
+}
+</script>
 </body></html>`;
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
