@@ -19,24 +19,31 @@ async function fetchDeals() {
     const imageMatch = xml.match(/<media:content[^>]*url="([^"]*)"/);
     const image = imageMatch?.[1] || "";
 
-    if (!title.toLowerCase().includes("amazon")) continue;
+    // Include any deal mentioning Amazon
+    const textToCheck = (title + " " + link).toLowerCase();
+    if (!textToCheck.includes("amazon")) continue;
 
     // Extract product keywords from title for Amazon search
     const productName = title
-      .replace(/Amazon\s*/i, "")
-      .replace(/\(.*?\)/g, "")
       .replace(/\[.*?\]/g, "")
+      .replace(/\(.*?\)/g, "")
       .replace(/für\s+\d+[.,]?\d*\s*€?/i, "")
       .replace(/statt\s+\d+[.,]?\d*\s*€?/i, "")
-      .replace(/Prime/gi, "")
-      .replace(/bei\s+Amazon/gi, "")
+      .replace(/ab\s+\d+[.,]?\d*\s*€?/i, "")
+      .replace(/~\s*\d+[.,]?\d*\s*€?/i, "")
       .replace(/von\s+Amazon/gi, "")
+      .replace(/bei\s+Amazon/gi, "")
+      .replace(/Amazon\s*/gi, "")
+      .replace(/Prime/gi, "")
+      .replace(/\d+[.,]\d+\s*€/g, "")
+      .replace(/\s+/g, " ")
       .trim()
-      .split(/\s+/)
-      .slice(0, 5)
-      .join("+");
+      .split(" ")
+      .slice(0, 6)
+      .join(" ");
 
-    const affiliateLink = `https://www.amazon.de/s?k=${encodeURIComponent(productName.replace(/\+/g, " "))}&tag=${AFFILIATE_TAG}`;
+    const searchQuery = encodeURIComponent(productName);
+    const affiliateLink = `https://www.amazon.de/s?k=${searchQuery}&tag=${AFFILIATE_TAG}`;
 
     items.push({ title, price, image, affiliateLink, mydealzLink: link });
   }
