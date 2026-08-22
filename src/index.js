@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-  const html = readFileSync(join(__dirname, "public.html"), "utf-8");
+  const html = readFileSync(join(__dirname, "..", "public.html"), "utf-8");
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.send(html);
 });
