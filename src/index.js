@@ -152,7 +152,7 @@ function generate() {
     if (percent) msg += "📉 *ca. " + percent + " % günstiger*\\n";
   }
   msg += "\\n\\n👉 *Jetzt bei Amazon sichern:*\\n" + tag;
-  msg += "\\n\\n\\n⚡ *Deal kann jederzeit enden – schnell sein!*";
+  msg += "\\n\\n\\n⚡ *Deal kann jederzeit enden – schnell sein!*\\n\\n👉 *Folge uns auch auf WhatsApp!*\\nhttps://whatsapp.com/channel/0029Vb8nDX2F1YlZ5KEKZc3f";
 
   const preview = document.getElementById("preview");
   preview.textContent = msg;
