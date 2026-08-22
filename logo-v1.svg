@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+  <rect width="400" height="100" fill="#0a0a0a"/>
+  <text x="30" y="62" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="300" fill="#ffffff" letter-spacing="2">Deal</text>
+  <text x="145" y="62" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="700" fill="#25D366" letter-spacing="2">Z</text>
+  <text x="175" y="62" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="300" fill="#ffffff" letter-spacing="2">Time</text>
+  <line x1="30" y1="78" x2="260" y2="78" stroke="#25D366" stroke-width="1.5"/>
+  <text x="30" y="92" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="#666666" letter-spacing="4">TAEGLICHE DEALS</text>
+</svg>

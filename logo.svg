@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#25D366"/>
+      <stop offset="100%" style="stop-color:#128C7E"/>
+    </linearGradient>
+    <linearGradient id="fire" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B35"/>
+      <stop offset="50%" style="stop-color:#FF4500"/>
+      <stop offset="100%" style="stop-color:#FFD700"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="120" rx="16" fill="#0a0a0a"/>
+  <rect x="2" y="2" width="396" height="116" rx="14" fill="none" stroke="url(#bg)" stroke-width="2"/>
+  <!-- Fire icon -->
+  <g transform="translate(22, 22)">
+    <path d="M38 52 C38 52 50 30 50 20 C50 10 42 2 34 8 C30 4 24 6 24 6 C24 6 30 0 26 14 C22 8 18 16 18 16 C18 16 20 26 18 32 C16 38 12 42 12 48 C12 58 20 66 30 66 C40 66 46 58 46 48 C46 42 42 36 38 52Z" fill="url(#fire)"/>
+  </g>
+  <!-- Text: DealZTime -->
+  <text x="100" y="58" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="38" font-weight="800" fill="white" letter-spacing="-1">
+    Deal<tspan fill="#25D366">Z</tspan>Time
+  </text>
+  <!-- Subtitle -->
+  <text x="102" y="85" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" fill="#888888" letter-spacing="3">
+    TAEGLICHE AMAZON-DEALS
+  </text>
+</svg>
